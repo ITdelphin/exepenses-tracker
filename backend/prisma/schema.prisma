@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  MOBILE_PAYMENT
+  OTHER
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password      String
+  role          UserRole @default(USER)
+  avatar        String?
+  isVerified    Boolean  @default(false)
+  verificationToken String?
+  resetToken    String?
+  resetTokenExp DateTime?
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  expenses     Expense[]
+  incomes      Income[]
+  categories   Category[]
+  budgets      Budget[]
+  notifications Notification[]
+  reports      Report[]
+  receipts     Receipt[]
+  goals        Goal[]
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String?
+  color     String?
+  type      String   @default("expense")
+  isDefault Boolean  @default(false)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  expenses Expense[]
+  incomes  Income[]
+  budgets  Budget[]
+}
+
+model Expense {
+  id            String        @id @default(uuid())
+  title         String
+  description   String?
+  amount        Float
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id])
+  date          DateTime
+  paymentMethod PaymentMethod @default(OTHER)
+  notes         String?
+  isImportant   Boolean       @default(false)
+  isRecurring   Boolean       @default(false)
+  recurringInterval String?
+  receiptId     String?
+  receipt       Receipt?      @relation(fields: [receiptId], references: [id])
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Income {
+  id          String   @id @default(uuid())
+  source      String
+  description String?
+  amount      Float
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  date        DateTime
+  isRecurring Boolean  @default(false)
+  recurringInterval String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Budget {
+  id          String   @id @default(uuid())
+  month       Int
+  year        Int
+  limit       Float
+  spent       Float    @default(0)
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, month, year, categoryId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  type      String
+  period    String
+  data      Json
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Receipt {
+  id        String   @id @default(uuid())
+  imageUrl  String
+  ocrText   String?
+  amount    Float?
+  date      DateTime?
+  merchant  String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expenses  Expense[]
+}
+
+model Goal {
+  id          String   @id @default(uuid())
+  title       String
+  targetAmount Float
+  currentAmount Float @default(0)
+  deadline    DateTime?
+  category    String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
