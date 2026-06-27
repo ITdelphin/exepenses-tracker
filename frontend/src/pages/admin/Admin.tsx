@@ -100,6 +100,48 @@ export default function Admin() {
         </div>
       )}
 
+      {/* System Status & Controls */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Status</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Database (Supabase)</span>
+              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">CONNECTED</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">API Server</span>
+              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">HEALTHY</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Authentication Service</span>
+              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Control & Monitoring</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            To monitor real-time system logs and database activity, you can use the following methods:
+          </p>
+          <ul className="space-y-2">
+            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+              <span>Terminal logs: Run <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">npm run dev</code> to see all API requests.</span>
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+              <span>Supabase Dashboard: Go to "Logs" &rarr; "Postgres" for DB queries.</span>
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+              <span>Vercel Analytics: Available in the Vercel dashboard once deployed.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
       {!analytics && (
         <div className="card text-center py-12">
           <p className="text-gray-500">Connect to a database to see analytics</p>

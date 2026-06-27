@@ -29,7 +29,7 @@ export default function Expenses() {
   };
 
   useEffect(() => {
-    categoryAPI.getAll().then(({ data }) => setCategories(data.data)).catch(() => {});
+    categoryAPI.getAll().then(({ data }) => setCategories(data.data)).catch(() => { });
     fetchExpenses();
   }, []);
 
@@ -53,13 +53,15 @@ export default function Expenses() {
     } catch (err: any) { toast.error(err.response?.data?.message || 'Failed to save expense'); }
   };
 
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this expense?')) return;
     try {
       await expenseAPI.delete(id);
-      toast.success('Expense deleted');
+      toast.success('Expense deleted successfully');
+      setDeleteConfirm(null);
       fetchExpenses();
-    } catch (err) { toast.error('Failed to delete'); }
+    } catch (err) { toast.error('Failed to delete expense'); }
   };
 
   const handleToggleImportant = async (exp: Expense) => {
@@ -145,9 +147,16 @@ export default function Expenses() {
                     <td className="p-4 text-right"><span className="text-sm font-semibold text-red-600">-${exp.amount.toFixed(2)}</span></td>
                     <td className="p-4">
                       <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => openEdit(exp)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg"><FiEdit2 size={16} /></button>
-                        <button onClick={() => handleToggleImportant(exp)} className="p-1.5 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-gray-700 rounded-lg"><FiStar size={16} className={exp.isImportant ? 'fill-yellow-500 text-yellow-500' : ''} /></button>
-                        <button onClick={() => handleDelete(exp.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"><FiTrash2 size={16} /></button>
+                        <button onClick={() => openEdit(exp)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors"><FiEdit2 size={16} /></button>
+                        <button onClick={() => handleToggleImportant(exp)} className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors"><FiStar size={16} className={exp.isImportant ? 'fill-yellow-500 text-yellow-500' : ''} /></button>
+                        {deleteConfirm === exp.id ? (
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => handleDelete(exp.id)} className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 text-xs font-bold rounded-lg hover:bg-red-200">Confirm</button>
+                            <button onClick={() => setDeleteConfirm(null)} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 text-xs font-bold rounded-lg hover:bg-gray-200"><FiX size={14} /></button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setDeleteConfirm(exp.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors"><FiTrash2 size={16} /></button>
+                        )}
                       </div>
                     </td>
                   </tr>

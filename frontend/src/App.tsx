@@ -17,6 +17,8 @@ import Notifications from './pages/notifications/Notifications';
 import Profile from './pages/profile/Profile';
 import Admin from './pages/admin/Admin';
 
+import Landing from './pages/Landing';
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingSpinner size="lg" />;
@@ -40,24 +42,26 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Landing page at root if not logged in */}
+      <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Landing />} />
+
+      {/* Auth routes */}
       <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-      {/* Protected routes */}
-      <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-        <Route index element={<Navigate to="/dashboard" />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="expenses" element={<Expenses />} />
-        <Route path="income" element={<Income />} />
-        <Route path="budgets" element={<Budgets />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="ai-insights" element={<AIInsights />} />
-        <Route path="goals" element={<Goals />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="profile" element={<Profile />} />
+      {/* App routes */}
+      <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/expenses" element={<Expenses />} />
+        <Route path="/income" element={<Income />} />
+        <Route path="/budgets" element={<Budgets />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/ai-insights" element={<AIInsights />} />
+        <Route path="/goals" element={<Goals />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
 
       {/* Admin routes */}
@@ -65,7 +69,7 @@ export default function App() {
         <Route index element={<Admin />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/dashboard" />} />
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }

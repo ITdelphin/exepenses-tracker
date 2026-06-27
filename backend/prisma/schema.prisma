@@ -45,6 +45,7 @@ model User {
   reports      Report[]
   receipts     Receipt[]
   goals        Goal[]
+  refreshTokens RefreshToken[]
 }
 
 model Category {

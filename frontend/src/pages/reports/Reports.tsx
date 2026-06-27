@@ -31,6 +31,23 @@ export default function Reports() {
   const chartData = report?.dailyData ? report.dailyData.map((d: any) => ({ ...d, date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) })) : [];
   const topCatData = report?.topCategories?.map((c: any) => ({ name: c.categoryName, value: c.total })) || [];
 
+  const downloadCSV = () => {
+    if (!report) return;
+    const headers = ['Date', 'Income', 'Expense'];
+    const rows = chartData.map((d: any) => [d.date, d.income, d.expense]);
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `report_${period}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('CSV Exported');
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -125,9 +142,9 @@ export default function Reports() {
 
           {/* Export Buttons */}
           <div className="flex gap-3">
-            <button className="btn-secondary flex items-center gap-2"><FiDownload size={16} /> Export PDF</button>
-            <button className="btn-secondary flex items-center gap-2"><FiDownload size={16} /> Export CSV</button>
-            <button className="btn-secondary flex items-center gap-2"><FiFileText size={16} /> Export Excel</button>
+            <button onClick={() => toast.success('PDF Export starting... (Simulated)')} className="btn-secondary flex items-center gap-2"><FiDownload size={16} /> Export PDF</button>
+            <button onClick={downloadCSV} className="btn-secondary flex items-center gap-2"><FiDownload size={16} /> Export CSV</button>
+            <button onClick={() => toast.success('Excel Export starting... (Simulated)')} className="btn-secondary flex items-center gap-2"><FiFileText size={16} /> Export Excel</button>
           </div>
         </div>
       ) : null}
