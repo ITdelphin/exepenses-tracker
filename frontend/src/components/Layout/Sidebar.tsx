@@ -55,22 +55,32 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           ))}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3 mb-3 px-4 py-2">
-            <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 font-semibold text-sm">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+          <div className="mb-4">
+            <p className="text-[10px] text-gray-400 font-medium px-4 uppercase tracking-widest mb-2">System Info</p>
+            <p className="text-[10px] text-gray-500 px-4 leading-relaxed italic">
+              {/* This will be replaced by API call result in a real scenario with a hook */}
+              Powered by Rwanda Safe Technologies. Strict Privacy Protocols Active.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 mb-3 px-4 py-2 bg-gray-50 dark:bg-gray-800/80 rounded-xl">
+            <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 font-semibold text-sm ring-2 ring-white dark:ring-gray-700">
               {user?.name?.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user?.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+              <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user?.name}</p>
+              <div className="flex items-center gap-1">
+                <span className={`w-1.5 h-1.5 rounded-full ${user?.role === 'ADMIN' ? 'bg-blue-500' : 'bg-green-500'}`}></span>
+                <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 tracking-tighter uppercase">{user?.role}</p>
+              </div>
             </div>
           </div>
           <div className="flex gap-2 px-4">
-            <NavLink to="/profile" onClick={onClose} className="flex-1 text-center text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 py-1">
-              <FiSettings size={16} className="inline mr-1" /> Profile
+            <NavLink to="/profile" onClick={onClose} className="flex-1 text-center text-[11px] font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg py-2 transition-all">
+              <FiSettings size={14} className="inline mr-1" /> PROFILE
             </NavLink>
-            <button onClick={logout} className="flex-1 text-center text-sm text-red-600 hover:text-red-700 py-1">
-              <FiLogOut size={16} className="inline mr-1" /> Logout
+            <button onClick={logout} className="flex-1 text-center text-[11px] font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg py-2 transition-all">
+              <FiLogOut size={14} className="inline mr-1" /> LOGOUT
             </button>
           </div>
         </div>

@@ -24,6 +24,35 @@ export class ReportController {
     } catch (err) { next(err); }
   }
 
+  async getMonthlyTrends(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.id;
+      const months = 6;
+      const trends = [];
+
+      for (let i = months - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const start = new Date(d.getFullYear(), d.getMonth(), 1);
+        const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
+
+        const [income, expense] = await Promise.all([
+          prisma.income.aggregate({ where: { userId, date: { gte: start, lte: end } }, _sum: { amount: true } }),
+          prisma.expense.aggregate({ where: { userId, date: { gte: start, lte: end } }, _sum: { amount: true } }),
+        ]);
+
+        trends.push({
+          month: start.toLocaleString('default', { month: 'short' }),
+          year: start.getFullYear(),
+          income: income._sum.amount || 0,
+          expenses: expense._sum.amount || 0,
+        });
+      }
+
+      sendSuccess(res, trends);
+    } catch (err) { next(err); }
+  }
+
   async getDashboardStats(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;

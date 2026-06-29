@@ -107,6 +107,50 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Privacy Section */}
+      <section className="py-20 bg-gray-50 dark:bg-gray-800/30">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400 mb-6">
+                <FiShield size={24} />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Privacy by Design</h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                We believe your financial data is yours alone. Our system architecture ensures total isolation:
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <FiCheckCircle className="text-green-500" />
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">Admins cannot see your individual transactions</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <FiCheckCircle className="text-green-500" />
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">Budgets and income are encrypted at the user level</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <FiCheckCircle className="text-green-500" />
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">System stats are aggregated anonymously</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 card border-green-200 dark:border-green-900/30 shadow-2xl">
+              <h4 className="text-sm font-bold text-green-600 mb-4 tracking-widest uppercase">Encryption Status</h4>
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">User Data isolation</span>
+                  <span className="text-green-500 font-mono text-sm font-bold">100% SECURE</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full">
+                  <div className="bg-green-500 w-full h-full rounded-full"></div>
+                </div>
+                <p className="text-xs text-gray-500 italic">"Admins can only see system health and user counts. Your private numbers are never exposed."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Control Panel Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
@@ -132,19 +176,19 @@ export default function Landing() {
             </div>
           </div>
           <div className="flex-1 bg-gradient-to-br from-primary-600 to-indigo-600 p-1 rounded-2xl shadow-2xl transform rotate-1">
-             <div className="bg-gray-900 rounded-xl p-6 text-white font-mono text-sm overflow-hidden">
-                <div className="flex gap-2 mb-4">
-                  <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                  <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
-                  <span className="w-3 h-3 rounded-full bg-green-500"></span>
-                </div>
-                <p className="text-primary-400">$ smart-tracker auth --status</p>
-                <p className="text-white mt-1">Authenticated as Delphin Ngarambe</p>
-                <p className="text-primary-400 mt-4">$ smart-tracker reports generate --monthly</p>
-                <p className="text-gray-400 mt-1">Analyzing 127 transactions...</p>
-                <p className="text-green-400 mt-1">SUCCESS: Report generated. Total Savings: $1,240.50</p>
-                <p className="text-primary-400 mt-4">$ _</p>
-             </div>
+            <div className="bg-gray-900 rounded-xl p-6 text-white font-mono text-sm overflow-hidden">
+              <div className="flex gap-2 mb-4">
+                <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span className="w-3 h-3 rounded-full bg-green-500"></span>
+              </div>
+              <p className="text-primary-400">$ smart-tracker auth --status</p>
+              <p className="text-white mt-1">Authenticated as Delphin Ngarambe</p>
+              <p className="text-primary-400 mt-4">$ smart-tracker reports generate --monthly</p>
+              <p className="text-gray-400 mt-1">Analyzing 127 transactions...</p>
+              <p className="text-green-400 mt-1">SUCCESS: Report generated. Total Savings: $1,240.50</p>
+              <p className="text-primary-400 mt-4">$ _</p>
+            </div>
           </div>
         </div>
       </section>

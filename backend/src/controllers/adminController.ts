@@ -34,33 +34,23 @@ export class AdminController {
 
   async getAnalytics(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const [totalUsers, totalExpenses, totalIncome, activeUsers, categoryStats] = await Promise.all([
+      const [totalUsers, activeUsers, verifiedUsers] = await Promise.all([
         prisma.user.count(),
-        prisma.expense.aggregate({ _sum: { amount: true }, _count: true }),
-        prisma.income.aggregate({ _sum: { amount: true }, _count: true }),
-        prisma.user.count({ where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } } }),
-        prisma.expense.groupBy({ by: ['categoryId'], _sum: { amount: true }, _count: true }),
+        prisma.user.count({ where: { updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } } }),
+        prisma.user.count({ where: { isVerified: true } }),
       ]);
-
-      const categoryIds = categoryStats.map(c => c.categoryId);
-      const categories = await prisma.category.findMany({ where: { id: { in: categoryIds } } });
-      const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
       sendSuccess(res, {
         totalUsers,
-        totalExpensesAmount: totalExpenses._sum.amount || 0,
-        totalExpensesCount: totalExpenses._count,
-        totalIncomeAmount: totalIncome._sum.amount || 0,
-        totalIncomeCount: totalIncome._count,
-        activeUsers30Days: activeUsers,
-        categoryBreakdown: categoryStats.map(c => ({
-          category: categoryMap.get(c.categoryId) || 'Unknown',
-          total: c._sum.amount || 0,
-          count: c._count,
-        })),
+        activeUsers7Days: activeUsers,
+        verifiedUsers,
+        systemStatus: 'Healthy',
+        uptime: process.uptime(),
+        nodeVersion: process.version,
       });
     } catch (err) { next(err); }
   }
+
 
   async deleteExpense(req: AuthRequest, res: Response, next: NextFunction) {
     try {

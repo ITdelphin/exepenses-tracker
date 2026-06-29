@@ -100,6 +100,7 @@ export const budgetAPI = {
 // Report API
 export const reportAPI = {
   getDashboard: () => api.get('/reports/dashboard'),
+  getTrends: () => api.get('/reports/trends'),
   generate: (data: { type: string; period: string }) => api.post('/reports/generate', data),
   getHistory: () => api.get('/reports/history'),
 };

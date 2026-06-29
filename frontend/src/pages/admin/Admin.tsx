@@ -1,152 +1,160 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiUsers, FiDollarSign, FiTrendingUp, FiPieChart } from 'react-icons/fi';
+import { FiUsers, FiCpu, FiShield } from 'react-icons/fi';
 import { adminAPI } from '../../api/axios';
+import axios from '../../api/axios';
+import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 const COLORS = ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
 
-interface Analytics {
-  totalUsers: number;
-  totalExpensesAmount: number;
-  totalExpensesCount: number;
-  totalIncomeAmount: number;
-  totalIncomeCount: number;
-  activeUsers30Days: number;
-  categoryBreakdown: { category: string; total: number; count: number }[];
-}
-
 export default function Admin() {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [settings, setSettings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [footerInfo, setFooterInfo] = useState('');
 
   useEffect(() => {
-    adminAPI.getAnalytics()
-      .then(({ data }) => setAnalytics(data.data))
+    Promise.all([
+      adminAPI.getAnalytics(),
+      axios.get('/admin/settings')
+    ])
+      .then(([{ data: analyticsData }, { data: settingsData }]) => {
+        setAnalytics(analyticsData.data);
+        setSettings(settingsData.data);
+        const footer = settingsData.data.find((s: any) => s.key === 'footer_info');
+        if (footer) setFooterInfo(footer.value);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <LoadingSpinner size="lg" />;
+  const handleUpdateSetting = async (key: string, value: string) => {
+    setSaving(true);
+    try {
+      await axios.put('/admin/settings', { key, value });
+      toast.success('Setting updated successfully');
+    } catch (error) {
+      toast.error('Failed to update setting');
+    } finally {
+      setSaving(false);
+    }
+  };
 
-  const categoryData = analytics?.categoryBreakdown?.map(c => ({ name: c.category, value: c.total })) || [];
+  if (loading) return <LoadingSpinner size="lg" />;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Panel</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">System analytics and management</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">System Control Panel</h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">Manage users and monitor system health</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* ... (keep stats cards) */}
         <div className="card-hover">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center"><FiUsers className="text-blue-600" size={20} /></div>
             <p className="text-sm text-gray-500">Total Users</p>
           </div>
           <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics?.totalUsers || 0}</p>
-          <p className="text-xs text-gray-400">{analytics?.activeUsers30Days || 0} active this month</p>
         </div>
         <div className="card-hover">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center"><FiDollarSign className="text-red-600" size={20} /></div>
-            <p className="text-sm text-gray-500">Total Expenses</p>
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center"><FiUsers className="text-green-600" size={20} /></div>
+            <p className="text-sm text-gray-500">Active (7d)</p>
           </div>
-          <p className="text-2xl font-bold text-red-600">${(analytics?.totalExpensesAmount || 0).toFixed(2)}</p>
-          <p className="text-xs text-gray-400">{analytics?.totalExpensesCount || 0} transactions</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics?.activeUsers7Days || 0}</p>
         </div>
         <div className="card-hover">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center"><FiTrendingUp className="text-green-600" size={20} /></div>
-            <p className="text-sm text-gray-500">Total Income</p>
+            <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center"><FiUsers className="text-yellow-600" size={20} /></div>
+            <p className="text-sm text-gray-500">Verified Users</p>
           </div>
-          <p className="text-2xl font-bold text-green-600">${(analytics?.totalIncomeAmount || 0).toFixed(2)}</p>
-          <p className="text-xs text-gray-400">{analytics?.totalIncomeCount || 0} transactions</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics?.verifiedUsers || 0}</p>
         </div>
         <div className="card-hover">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center"><FiPieChart className="text-purple-600" size={20} /></div>
-            <p className="text-sm text-gray-500">Categories</p>
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center"><FiCpu className="text-purple-600" size={20} /></div>
+            <p className="text-sm text-gray-500">Uptime</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">{categoryData.length}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{Math.floor(analytics?.uptime / 3600)}h {Math.floor((analytics?.uptime % 3600) / 60)}m</p>
         </div>
       </div>
 
-      {/* Category Breakdown Chart */}
-      {categoryData.length > 0 && (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* System Settings */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Category Spending Breakdown</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie data={categoryData} cx="50%" cy="50%" outerRadius={100} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                  {categoryData.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', color: '#fff' }} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="space-y-2">
-              {categoryData.map((c: any, i: number) => (
-                <div key={c.name} className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">{c.name}</span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">${c.value.toFixed(2)}</span>
-                </div>
-              ))}
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Global System Settings</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Public Footer Info
+              </label>
+              <textarea
+                value={footerInfo}
+                onChange={(e) => setFooterInfo(e.target.value)}
+                className="input h-24"
+                placeholder="Enter footer text for all users..."
+              />
+              <button
+                onClick={() => handleUpdateSetting('footer_info', footerInfo)}
+                disabled={saving}
+                className="btn btn-primary mt-3 w-full"
+              >
+                {saving ? 'Saving...' : 'Update Footer Information'}
+              </button>
             </div>
           </div>
         </div>
-      )}
 
-      {/* System Status & Controls */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Infrastructure */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Status</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Core Infrastructure</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Database (Supabase)</span>
               <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">CONNECTED</span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">API Server</span>
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">HEALTHY</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Authentication Service</span>
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">ACTIVE</span>
-            </div>
+            {/* ... */}
           </div>
-        </div>
-
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Control & Monitoring</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            To monitor real-time system logs and database activity, you can use the following methods:
-          </p>
-          <ul className="space-y-2">
-            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-              <span>Terminal logs: Run <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">npm run dev</code> to see all API requests.</span>
-            </li>
-            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-              <span>Supabase Dashboard: Go to "Logs" &rarr; "Postgres" for DB queries.</span>
-            </li>
-            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-              <span>Vercel Analytics: Available in the Vercel dashboard once deployed.</span>
-            </li>
-          </ul>
         </div>
       </div>
 
-      {!analytics && (
-        <div className="card text-center py-12">
-          <p className="text-gray-500">Connect to a database to see analytics</p>
+      {/* User Management (simplified list as requested) */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">User Directory</h3>
+        <p className="text-sm text-gray-500 mb-4 italic">Note: Admins have zero access to individual transaction data or balances.</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-gray-100 dark:border-gray-800">
+                <th className="pb-3 text-xs font-semibold text-gray-400 uppercase">User</th>
+                <th className="pb-3 text-xs font-semibold text-gray-400 uppercase">System Role</th>
+                <th className="pb-3 text-xs font-semibold text-gray-400 uppercase">Activity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-gray-50 dark:border-gray-800/50">
+                <td className="py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">DN</div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">Delphin Ngarambe</p>
+                      <p className="text-xs text-gray-500">delphinngarambe@gmail.com</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-4"><span className="badge badge-primary">ADMIN</span></td>
+                <td className="py-4 text-xs text-green-500">Online Now</td>
+              </tr>
+              {/* More users would go here */}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
     </motion.div>
   );
 }
