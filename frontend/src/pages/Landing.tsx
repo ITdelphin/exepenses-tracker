@@ -196,7 +196,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="py-10 border-t border-gray-200 dark:border-gray-800 text-center">
         <p className="text-gray-500 dark:text-gray-400 text-sm">
-          © 2026 ITDelphin. All rights reserved. Access from any browser at <span className="text-primary-600 font-bold">localhost:5173</span>
+          © 2026 SmartTracker by ITDelphin. All rights reserved. Your financial data, always private.
         </p>
       </footer>
     </div>

@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { FiHome, FiDollarSign, FiTrendingUp, FiPieChart, FiTarget, FiBarChart2, FiUsers, FiSettings, FiLogOut, FiMenu, FiX, FiBell, FiCpu } from 'react-icons/fi';
+import { FiHome, FiDollarSign, FiTrendingUp, FiPieChart, FiTarget, FiBarChart2, FiUsers, FiSettings, FiLogOut, FiMenu, FiX, FiBell, FiCpu, FiShield } from 'react-icons/fi';
 
 interface SidebarProps {
   open: boolean;
@@ -21,9 +21,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     { to: '/notifications', icon: FiBell, label: 'Notifications' },
   ];
 
-  if (user?.role === 'ADMIN') {
-    links.push({ to: '/admin', icon: FiUsers, label: 'Admin' });
-  }
+  const isAdmin = user?.role === 'ADMIN';
 
   return (
     <>
@@ -53,14 +51,36 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <span>{link.label}</span>
             </NavLink>
           ))}
+
+          {isAdmin && (
+            <>
+              <div className="pt-4 pb-2">
+                <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 px-4 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <FiShield size={10} /> Admin Control
+                </p>
+              </div>
+              <NavLink
+                to="/admin"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `sidebar-link ${isActive ? 'active' : ''} ${isActive
+                    ? 'border-l-2 border-red-500'
+                    : 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                  }`
+                }
+              >
+                <FiUsers size={18} />
+                <span>System Admin</span>
+              </NavLink>
+            </>
+          )}
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
           <div className="mb-4">
-            <p className="text-[10px] text-gray-400 font-medium px-4 uppercase tracking-widest mb-2">System Info</p>
+            <p className="text-[10px] text-gray-400 font-medium px-4 uppercase tracking-widest mb-2">Smart Expense Tracker</p>
             <p className="text-[10px] text-gray-500 px-4 leading-relaxed italic">
-              {/* This will be replaced by API call result in a real scenario with a hook */}
-              Powered by Rwanda Safe Technologies. Strict Privacy Protocols Active.
+              Secure · Private · Encrypted
             </p>
           </div>
           <div className="flex items-center gap-3 mb-3 px-4 py-2 bg-gray-50 dark:bg-gray-800/80 rounded-xl">
