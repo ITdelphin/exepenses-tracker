@@ -21,9 +21,9 @@ dotenv.config();
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false, xXssProtection: false }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL?.split(',') || ['https://exepenses-tracker.vercel.app', 'http://localhost:5173'],
   credentials: true,
 }));
 
