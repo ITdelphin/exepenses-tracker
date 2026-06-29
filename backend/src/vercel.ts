@@ -19,6 +19,12 @@ import goalRoutes from './routes/goals';
 
 dotenv.config();
 
+const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+const missing = requiredEnvVars.filter(v => !process.env[v]);
+if (missing.length) {
+  console.error(`Missing required environment variables: ${missing.join(', ')}`);
+}
+
 const app = express();
 
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false, xXssProtection: false }));
@@ -52,6 +58,10 @@ app.use('/api/goals', goalRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Smart Expense Tracker API is running', timestamp: new Date().toISOString() });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} not found` });
 });
 
 app.use(errorHandler);

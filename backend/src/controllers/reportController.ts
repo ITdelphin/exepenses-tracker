@@ -28,7 +28,7 @@ export class ReportController {
     try {
       const userId = req.user!.id;
       const months = 6;
-      const trends = [];
+      const trends: { month: string; year: number; income: number; expenses: number }[] = [];
 
       for (let i = months - 1; i >= 0; i--) {
         const d = new Date();

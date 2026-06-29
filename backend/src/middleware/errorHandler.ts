@@ -22,7 +22,7 @@ export const errorHandler = (err: Error | AppError, req: Request, res: Response,
     });
   }
 
-  if (err.name === 'ValidationError') {
+  if (err.name === 'ValidationError' || err.name === 'SyntaxError') {
     return res.status(400).json({ success: false, message: err.message });
   }
 

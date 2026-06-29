@@ -4,6 +4,7 @@ import prisma from '../config/database';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/generateToken';
 import { AuthPayload } from '../types';
 import { AppError } from '../middleware/errorHandler';
+import { sendVerificationEmail } from './emailService';
 
 export class AuthService {
   async register(name: string, email: string, password: string) {
@@ -13,12 +14,6 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 12);
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
-    const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword, verificationToken },
-      select: { id: true, name: true, email: true, role: true, isVerified: true, createdAt: true },
-    });
-
-    // Create default categories for new user
     const defaultCategories = [
       { name: 'Food', icon: '🍔', color: '#FF6B6B', type: 'expense', isDefault: true },
       { name: 'Transport', icon: '🚗', color: '#4ECDC4', type: 'expense', isDefault: true },
@@ -29,14 +24,27 @@ export class AuthService {
       { name: 'Entertainment', icon: '🎬', color: '#98D8C8', type: 'expense', isDefault: true },
       { name: 'Bills', icon: '📄', color: '#F7DC6F', type: 'expense', isDefault: true },
       { name: 'Travel', icon: '✈️', color: '#BB8FCE', type: 'expense', isDefault: true },
-      { name: 'Investment', icon: '📈', color: '#85C1E9', type: 'expense', isDefault: true },
+      { name: 'Investment', icon: '📈', color: '#85C1E9', type: 'income', isDefault: true },
       { name: 'Salary', icon: '💰', color: '#82E0AA', type: 'income', isDefault: true },
       { name: 'Business', icon: '💼', color: '#F8C471', type: 'income', isDefault: true },
       { name: 'Other', icon: '📌', color: '#ABB2B9', type: 'expense', isDefault: true },
     ];
 
-    await prisma.category.createMany({
-      data: defaultCategories.map(c => ({ ...c, userId: user.id })),
+    const user = await prisma.$transaction(async (tx) => {
+      const created = await tx.user.create({
+        data: { name, email, password: hashedPassword, verificationToken },
+        select: { id: true, name: true, email: true, role: true, isVerified: true, createdAt: true },
+      });
+
+      await tx.category.createMany({
+        data: defaultCategories.map(c => ({ ...c, userId: created.id })),
+      });
+
+      return created;
+    });
+
+    await sendVerificationEmail(email, name, verificationToken).catch(err => {
+      console.error('Failed to send verification email:', err);
     });
 
     return user;
