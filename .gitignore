@@ -34,3 +34,5 @@ Thumbs.db
 # Prisma
 /backend/prisma/migrations/
 .vercel
+errors/
+backend/dist/
