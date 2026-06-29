@@ -35,4 +35,5 @@ Thumbs.db
 /backend/prisma/migrations/
 .vercel
 errors/
+cmdkey.txt
 backend/dist/
